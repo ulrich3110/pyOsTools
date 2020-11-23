@@ -29,8 +29,8 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 
 
 # Mit welchem Befehl soll der Shortcut erzeugt werden:
-# Python-Symlink, Bash-Ln, Win-xx
-SHORTCUT = "Python-Symlink"
+# "os.symlink", "(Bash) ln", "Shortcut.exe", "mklink /J"
+SHORTCUT = "os.symlink"
 # Quell-Pfad mit den Original Verzeichnissen
 QUELLE = "./Struktur_Test/Synchronisationen/"
 # Zeil-Pfad für die struktur
@@ -116,14 +116,14 @@ def makelink(quell_pfad, ziel_pfad):
         # Verzeichnis existiert nicht: Erzeugen
         os.makedirs(verz_pfad)
     # Verknüpfung erzeugen
-    if SHORTCUT == "Python-Symlink":
+    if SHORTCUT == "os.symlink":
         # Python os.symlink Befehl verwenden
         os.symlink(
             os.path.abspath(quell_pfad),
             os.path.abspath(ziel_pfad)
         )
-        rueck = "Symlink Erzeugt"
-    elif SHORTCUT == "Bash-Ln":
+        rueck = "{0} erzeugt".format(SHORTCUT)
+    elif SHORTCUT == "(Bash) ln":
         # Bash ln-Befehl verwenden
         # Befehlskette erzeugen
         befehl = "ln -s {0} {1}".format(
@@ -131,25 +131,25 @@ def makelink(quell_pfad, ziel_pfad):
             os.path.abspath(ziel_pfad)
         )
         rueck = os.system(befehl)
-        rueck = "Symlink Erzeugt; {}".format(str(rueck))
-    elif SHORTCUT == "Windows Power-Shell":
+        rueck = "{0} erzeugt; {1}".format(SHORTCUT, str(rueck))
+    elif SHORTCUT == "mklink /J":
         # Windows Power Shell Bebefehl verwenden
         # Befehlskette erzeugen
-        befehl = 'Set-ShortCut "{0}.lnk" "{1}"'.format(
-            os.path.abspath(quell_pfad),
-            os.path.abspath(ziel_pfad)
+        befehl = 'mklink /J "{0}.lnk" "{1}"'.format(
+            os.path.abspath(ziel_pfad),
+            os.path.abspath(quell_pfad)
         )
         rueck = os.system(befehl)
-        rueck = "Symlink Erzeugt; {}".format(str(rueck)
-    elif SHORTCUT == "Windows Shortcut.exe":
+        rueck = "{0} erzeugt; {1}".format(SHORTCUT, str(rueck))
+    elif SHORTCUT == "Shortcut.exe":
         # Windows Power Shell Bebefehl verwenden
         # Befehlskette erzeugen
         befehl = 'shortcut.exe /F:""{0}.lnk" /A:C /T:""{1}""'.format(
-            os.path.abspath(quell_pfad),
-            os.path.abspath(ziel_pfad)
+            os.path.abspath(ziel_pfad),
+            os.path.abspath(quell_pfad)
         )
         rueck = os.system(befehl)
-        rueck = "Symlink Erzeugt; {}".format(str(rueck))
+        rueck = "{0} erzeugt; {1}".format(SHORTCUT, str(rueck))
     else:
         rueck = "Shortcut Befehl nicht definiert."
     return(rueck)
