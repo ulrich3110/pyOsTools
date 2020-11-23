@@ -28,7 +28,7 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 
 
 # Definition der ersten und der zweiten Struktur (Quelle und Zeil)
-QUELLE = "../2020_Rezepte"
+QUELLE = "."
 ZIEL = "."
 
 
@@ -260,7 +260,10 @@ if __name__ == '__main__':
     # Log-Meldung
     log_nr = logger(log_nr, "Unterschiede ermittelt", unterschiede)
     # Unterschiede in einer Tabelleanzeigen
-    titel = "Vergleich von   <{0}>   und   <{1}>".format(QUELLE, ZIEL)
+    titel = "Vergleich von   <{0}>   und   <{1}>".format(
+        os.path.abspath(QUELLE),
+        s.path.abspath(ZIEL)
+    )
     log = logunterschiede(unterschiede, titel)
     logname = "Vergleich_{}.txt".format(timetext())
     pfad = os.path.join(ZIEL, logname)
