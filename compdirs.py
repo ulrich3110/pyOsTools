@@ -262,7 +262,7 @@ if __name__ == '__main__':
     # Unterschiede in einer Tabelleanzeigen
     titel = "Vergleich von   <{0}>   und   <{1}>".format(
         os.path.abspath(QUELLE),
-        s.path.abspath(ZIEL)
+        os.path.abspath(ZIEL)
     )
     log = logunterschiede(unterschiede, titel)
     logname = "Vergleich_{}.txt".format(timetext())
