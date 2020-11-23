@@ -28,9 +28,9 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 '''
 
 
-# Mit welchem Befehl soll der Shortcut erzeugt werden:
+# Mit welchem Befehl soll der Symlink erzeugt werden:
 # "os.symlink", "(Bash) ln", "Shortcut.exe", "mklink /J"
-SHORTCUT = "os.symlink"
+SYMLINK = "os.symlink"
 # Quell-Pfad mit den Original Verzeichnissen
 QUELLE = "./Struktur_Test/Synchronisationen/"
 # Zeil-Pfad für die struktur
@@ -72,12 +72,17 @@ DIREKT_LINK = {
     "erasand_PROJ_2019":
         "Projekte/Projekte_2019"
 }
+# Verzeichnisse welche Variabel, das heisst abhängig von der Endung
+# Verlinkt werden sollen
 VAR_LINK = {
     "erasand_PROJ_2018__":
-        "Projekte/Projekte_2018/",
+        "Projekte/Projekte_2018",
     "erasand_PROJ_2020__":
-        "Projekte/Projekte_2020/",
+        "Projekte/Projekte_2020",
 }
+# Verzeichnisse welche unbekannt sind und in einen separate Struktur
+# verlinkt werden.
+UNBEKANNT = "Unbekannt"
 
 
 def logger(nummer, text, wert):
@@ -116,14 +121,14 @@ def makelink(quell_pfad, ziel_pfad):
         # Verzeichnis existiert nicht: Erzeugen
         os.makedirs(verz_pfad)
     # Verknüpfung erzeugen
-    if SHORTCUT == "os.symlink":
+    if SYMLINK == "os.symlink":
         # Python os.symlink Befehl verwenden
         os.symlink(
             os.path.abspath(quell_pfad),
             os.path.abspath(ziel_pfad)
         )
-        rueck = "{0} erzeugt".format(SHORTCUT)
-    elif SHORTCUT == "(Bash) ln":
+        rueck = "{0} erzeugt".format(SYMLINK)
+    elif SYMLINK == "(Bash) ln":
         # Bash ln-Befehl verwenden
         # Befehlskette erzeugen
         befehl = "ln -s {0} {1}".format(
@@ -131,25 +136,25 @@ def makelink(quell_pfad, ziel_pfad):
             os.path.abspath(ziel_pfad)
         )
         rueck = os.system(befehl)
-        rueck = "{0} erzeugt; {1}".format(SHORTCUT, str(rueck))
-    elif SHORTCUT == "mklink /J":
-        # Windows Power Shell Bebefehl verwenden
+        rueck = "{0} erzeugt; {1}".format(SYMLINK, str(rueck))
+    elif SYMLINK == "mklink /J":
+        # Windows mklink /J Befehl verwenden
         # Befehlskette erzeugen
         befehl = 'mklink /J "{0}.lnk" "{1}"'.format(
             os.path.abspath(ziel_pfad),
             os.path.abspath(quell_pfad)
         )
         rueck = os.system(befehl)
-        rueck = "{0} erzeugt; {1}".format(SHORTCUT, str(rueck))
-    elif SHORTCUT == "Shortcut.exe":
-        # Windows Power Shell Bebefehl verwenden
+        rueck = "{0} erzeugt; {1}".format(SYMLINK, str(rueck))
+    elif SYMLINK == "Shortcut.exe":
+        # Shortcut.exe verwenden
         # Befehlskette erzeugen
-        befehl = 'shortcut.exe /F:""{0}.lnk" /A:C /T:""{1}""'.format(
+        befehl = 'shortcut.exe /F:"{0}.lnk" /A:C /T:"{1}"'.format(
             os.path.abspath(ziel_pfad),
             os.path.abspath(quell_pfad)
         )
         rueck = os.system(befehl)
-        rueck = "{0} erzeugt; {1}".format(SHORTCUT, str(rueck))
+        rueck = "{0} erzeugt; {1}".format(SYMLINK, str(rueck))
     else:
         rueck = "Shortcut Befehl nicht definiert."
     return(rueck)
@@ -234,6 +239,20 @@ if __name__ == '__main__':
                         )
                         # Status auf erzeugt setzen
                         link_status = True
+            if not link_status:
+                # Verzeicnis gefunden, Verknüpfung im Unbekannt
+                # Verzeichnis erstellen, Link erzeugen
+                quell_pfad = os.path.join(QUELLE, i)
+                ziel_pfad = os.path.join(ZIEL, UNBEKANNT, i)
+                rueck = makelink(quell_pfad, ziel_pfad)
+                # Log-Meldung
+                log_nr = logger(
+                    log_nr,
+                    "Verknüpfung erstellt",
+                    "{0} / {1}".format(ziel_pfad, str(rueck))
+                )
+                # Status auf erzeugt setzen
+                link_status = True
         else:
             # Kein Verzeichnis
             # Log-Meldung
