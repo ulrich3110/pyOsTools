@@ -29,7 +29,7 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 
 # Definition der ersten und der zweiten Struktur (Quelle und Zeil)
 QUELLE = "."
-ZIEL = "./3_Test"
+ZIEL = "./Test"
 NAME = "_"
 ERWEITERUNG = "*"
 
@@ -337,7 +337,7 @@ if __name__ == '__main__':
     # Log-Meldung
     log_nr = logger(log_nr, "Zeiel-Daten geordnet", dat2_verzeichnis)
     # Inhalt anzeigen
-    titel = "Inhalt von   <{0}>".format(ZIEL)
+    titel = "Inhalt von   <{0}>".format(os.path.abspath(ZIEL))
     log = logverzeichnis(dat2_verzeichnis, titel)
     logname = "Inhalt_{}.txt".format(timetext())
     pfad = os.path.join(ZIEL, logname)
