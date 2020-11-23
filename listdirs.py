@@ -249,7 +249,7 @@ if __name__ == '__main__':
     # Log-Meldung
     log_nr = logger(log_nr, "Daten geordnet", datei_verzeichnis)
     # Inhalt pro Verzeichnis anzeigen
-    titel = "Inhalt von   <{0}>".format(QUELLE)
+    titel = "Inhalt von   <{0}>".format(os.path.abspath(QUELLE))
     log = logverzeichnis(datei_verzeichnis, titel)
     logname = "Inhalt_{}.txt".format(timetext())
     pfad = os.path.join(QUELLE, logname)
