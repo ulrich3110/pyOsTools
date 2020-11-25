@@ -29,7 +29,7 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 
 
 # Mit welchem Befehl soll der Symlink erzeugt werden:
-# "os.symlink", "(Bash) ln", "Shortcut.exe", "mklink /J"
+# "os.symlink", "(Bash) ln", "Shortcut.exe", "mklink /J", "bat"
 SYMLINK = "os.symlink"
 # Quell-Pfad mit den Original Verzeichnissen
 QUELLE = "./Struktur_Test/Synchronisationen/"
@@ -155,6 +155,23 @@ def makelink(quell_pfad, ziel_pfad):
         )
         rueck = os.system(befehl)
         rueck = "{0} erzeugt; {1}".format(SYMLINK, str(rueck))
+    elif SYMLINK == "bat":
+        # Windows Batch Datei verwenden
+        # Befehlskette erzeugen
+        text = '@echo off\n'
+        text = '{0}start explorer "{1}"\n'.format(
+            text,
+            os.path.abspath(quell_pfad)
+        )
+        # Batch Datei speichern
+        datei_name = "{}.bat".format(ziel_pfad)
+        try:
+            fileObj = open(datei_name, 'w')
+            fileObj.write(text)
+            fileObj.close()
+        except Exception:
+            print('Fehler beim Speichern.')
+        rueck = "{0} erzeugt {1}".format(SYMLINK, ziel_pfad)
     else:
         rueck = "Shortcut Befehl nicht definiert."
     return(rueck)
