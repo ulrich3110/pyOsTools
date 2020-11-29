@@ -3,9 +3,10 @@
 
 import time
 import os
+import json
 
 '''
-compdirs.py - 2 Verzeichnis-Strukturen vergleichen
+compremo.py - Verzeichnis-Strukturen anhand von JSON vergleichen
 Copyright (c) Nov. 2020: Andreas Ulrich
 <http://erasand.ch>, <andreas@erasand.ch>
 
@@ -28,8 +29,10 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 
 
 # Definition der ersten und der zweiten Struktur (Quelle und Zeil)
-QUELLE = "."
-ZIEL = "."
+QUELLE = "./quellen"
+ZIEL = "./ziele"
+# Definition wo die Bergleiche abgelegt werden
+VERGLEICH = "./vergleiche"
 
 
 def lenlist(liste):
@@ -83,48 +86,6 @@ def logger(nummer, text, wert):
     print("{0:X} # {1} # {2}".format(nummer, text, str(wert)))
     # Nummer zurückgeben
     return(nummer)
-
-
-def dirs(pfad):
-    '''
-    Mit os.walk() das aktuelle Verzeichnis und alle Unterverzeichnisse
-    durchsuchen. Das Ergbnis in der Verzeichnis-Liste und der
-    Datei-Liste zurückgeben.
-    pfad = 'pfad'
-    verzeichnis_liste = ['pfad',  ]
-    datei_liste = ['pfad/name',  ]
-    '''
-    datei_liste = []
-    verzeichnis_liste = []
-    for root, dirs, files in os.walk(pfad, topdown=False):
-        for name in files:
-            datei_liste.append(os.path.join(root, name))
-        for name in dirs:
-            verzeichnis_liste.append(os.path.join(root, name))
-    return(verzeichnis_liste, datei_liste)
-
-
-def datinfo(datei_liste):
-    '''
-    Erzeugt anhand der Datei-Liste eine Informationsverzeichns mit
-    Datum und Grösse der Dateien
-    datei_liste = ['pfad/name',  ]
-    info_verzeichnis = {'pfad/name': ('datum', groesse),  }
-    '''
-    info_verzeichnis = {}
-    # Lese jede Datei und hole Änderungsdatum & Dateigrösse
-    for i in datei_liste:
-        if os.path.isfile(i):
-            # Das Element ist eine Datei
-            datum = os.path.getmtime(i)
-            datum_text = time.strftime(
-                '%d.%m.%Y %H:%M:%S',
-                time.localtime(datum)
-            )
-            groesse = os.path.getsize(i)
-            info_verzeichnis[i] = (datum_text, groesse)
-    # Info-Verzeichnis zurückgeben
-    return(info_verzeichnis)
 
 
 def comparedirs(quell_liste, quell_info_verz, ziel_liste,
@@ -203,6 +164,38 @@ def comparedirs(quell_liste, quell_info_verz, ziel_liste,
     return(unterschiede)
 
 
+def comparejson(quell_liste, ziel_liste):
+    '''
+    Eine Quell-Liste von Json Dateien mit einer Ziel-liste vergleichen
+    und die Unterschiede als Verzeichnis zurückgeben:
+    gleich = ['.json',  ]
+    unterschiede = {'quelle': ['.json',  ], 'ziel': ['.json',  ]}
+    '''
+    gleich = []
+    unterschiede = {'quelle': [], 'ziel': []}
+    identisch = []
+    for i in quell_liste:
+        if i not in ziel_liste:
+            # Die Json Datei von der Quelle ist im Ziel nicht vorhanden
+            unterschiede['ziel'].append(i)
+        else:
+            if i not in gleich:
+                # Die Json Datei von der Quelle ist im Ziel vorhanden
+                # aber noch nicht om der Gleich-Liste
+                gleich.append(i)
+    for i in ziel_liste:
+        if i not in quell_liste:
+            # Die json Datei vom Ziel ist in der Quelle nicht vorhanden
+            unterschiede['quelle'].append(i)
+        else:
+            if i not in gleich:
+                # Die Json Datei vom Ziel ist in der Quelle vorhanden
+                # aber noch nicht om der Gleich-Liste
+                gleich.append(i)
+    # Gleich & Unterschiede zurückgeben
+    return(gleich, unterschiede)
+
+
 def logunterschiede(unterschiede, titel):
     '''
     Erstellt anhand der Unterschied-Liste einen Text für die Ausgabe
@@ -234,37 +227,110 @@ def logunterschiede(unterschiede, titel):
     return(text)
 
 
+def logjsonuntersch(unterschiede, titel):
+    '''
+    Erstellt anhand der Unterschied-Liste einen Text für die Ausgabe
+    am Bildschirm oder in eine Text-Datei.
+    unterschiede = {'quelle': ['.json',  ], 'ziel': ['.json']}
+    titel = "  "
+    text = "  \n  "
+    '''
+    # Ausgabe erzeugen
+    # Titel
+    titel_linie = len(titel) * "-"
+    text = "\n{0}\n{1}\n".format(titel, titel_linie)
+    # Quell Unerschiede anzeigen
+    text = "{}\nUnterschiede in Quellen:\n".format(text)
+    for i in unterschiede['quelle']:
+        text = "{0}{1}\n".format(text, i)
+    # Zeil Unterschiede anzteigen
+    text = "{}\nUnterschiede in Zielen:\n".format(text)
+    for i in unterschiede['ziel']:
+        text = "{0}{1}\n".format(text, i)
+    return(text)
+
+
 if __name__ == '__main__':
-    # 2 Dateistrukturen vergleichen und auf Namen, Grösse und Datum
+    # Dateistrukturen vergleichen und auf Namen, Grösse und Datum
     # prüfen. Ergebnis in die Ziel-Struktur als eine formatierte
     # Text-Datei schreiben.
-    # Log-Nummer setzen
+    # Log-Nummer setzen#
     log_nr = 0
-    # Quell Verzeichnis und Informatieonen lesen
-    quell_verzeich, quell_dateien = dirs(QUELLE)
-    quell_info_verz = datinfo(quell_dateien)
+    # Quellverzeichnis json lesen
+    quell_json = []
+    quell_liste = os.listdir(QUELLE)
+    for i in quell_liste:
+        quell_pfad = os.path.join(QUELLE, i)
+        if os.path.isfile(quell_pfad) and i.endswith(".json"):
+            # Json Datei
+            quell_json.append(i)
+            # Log-Meldung
+            log_nr = logger(
+                log_nr,
+                "Quell Json",
+                i
+            )
+    # Zielverzeichnis json lesen
+    ziel_json = []
+    ziel_liste = os.listdir(ZIEL)
+    for i in ziel_liste:
+        ziel_pfad = os.path.join(ZIEL, i)
+        if os.path.isfile(ziel_pfad) and i.endswith(".json"):
+            # Json Datei
+            ziel_json.append(i)
+            # Log-Meldung
+            log_nr = logger(
+                log_nr,
+                "Ziel Json",
+                i
+            )
+    # Json Dateien in Quelle und Ziel vergleichen
+    json_gleich, json_unterschiede = comparejson(quell_json, ziel_json)
     # Log-Meldung
-    log_nr = logger(log_nr, "Quell-Verzeichnis gelesen", quell_info_verz)
-    # Ziel Verzeichnis und Informatieonen lesen
-    ziel_verzeich, ziel_dateien = dirs(ZIEL)
-    ziel_info_verz = datinfo(ziel_dateien)
-    # Log-Meldung
-    log_nr = logger(log_nr, "Ziel-Verzeichnis gelesen", ziel_info_verz)
-    # Unterschiede ermitteln
-    unterschiede = comparedirs(
-        quell_dateien,
-        quell_info_verz,
-        ziel_dateien,
-        ziel_info_verz
+    log_nr = logger(log_nr, "Gleiche Json", json_gleich)
+    log_nr = logger(log_nr, "Unterschiedliche Json", json_unterschiede)
+    # Gleiche Json Verzeichnisse miteinander vergleichen
+    for i in json_gleich:
+        # Json Quelle lesen
+        quell_pfad = os.path.join(QUELLE, i)
+        with open(quell_pfad) as f:
+            quell_json_verz = json.load(f)
+        # Log-Meldung
+        log_nr = logger(log_nr, "Quell-Json gelesen", quell_json_verz)
+        # Json Ziel lesen
+        ziel_pfad = os.path.join(ZIEL, i)
+        with open(ziel_pfad) as f:
+            ziel_json_verz = json.load(f)
+        # Log-Meldung
+        log_nr = logger(log_nr, "Ziel-Json gelesen", ziel_json_verz)
+        # Unterschiede ermitteln
+        # {'Datei-Liste': [  ], 'Info-Verz': {  }}
+        unterschiede = comparedirs(
+            quell_json_verz['Datei-Liste'],
+            quell_json_verz['Info-Verz'],
+            ziel_json_verz['Datei-Liste'],
+            ziel_json_verz['Info-Verz']
+        )
+        # Log-Meldung
+        log_nr = logger(log_nr, "Unterschiede ermittelt", unterschiede)
+        # Unterschiede in einer Tabelleanzeigen
+        titel = "Unerschiede von   <{0}>   und   <{1}>".format(
+            os.path.abspath(quell_pfad),
+            os.path.abspath(ziel_pfad)
+        )
+        log = logunterschiede(unterschiede, titel)
+        logname = "Vergleich_{0}_{1}.txt".format(i, timetext())
+        pfad = os.path.join(VERGLEICH, logname)
+        savetext(log, pfad)
+    # Unterschiede in Json in einer Liste anzeigen
+    json_log = logjsonuntersch(
+        json_unterschiede,
+        "Unterschiedliche Json Verezcihnisse"
     )
-    # Log-Meldung
-    log_nr = logger(log_nr, "Unterschiede ermittelt", unterschiede)
-    # Unterschiede in einer Tabelleanzeigen
-    titel = "Unterschiede von   <{0}>   und   <{1}>".format(
+    json_titel = "Unerschiede von   <{0}>   und   <{1}>".format(
         os.path.abspath(QUELLE),
         os.path.abspath(ZIEL)
     )
-    log = logunterschiede(unterschiede, titel)
-    logname = "Vergleich_{}.txt".format(timetext())
-    pfad = os.path.join(ZIEL, logname)
-    savetext(log, pfad)
+    json_logname = "Vergleich_Quelle_Ziel_{}.txt".format(timetext())
+    json_pfad = os.path.join(VERGLEICH, json_logname)
+    savetext(json_log, json_pfad)
