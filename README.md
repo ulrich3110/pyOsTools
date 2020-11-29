@@ -1,5 +1,5 @@
 # pyOsTools
-Python Tools um Routineaufgaben bei Betriebssystem Opterationen zu automatisieren.
+Python Tools für die Erfassung und Kontrolle komplexer Dateistrukturen.
 
 - listdirs.py: Verzeichnis-Struktur mit Dateien und Untervezeichnissen in eine Textdatei schreiben.
 
