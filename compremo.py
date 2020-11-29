@@ -28,10 +28,10 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 '''
 
 
-# Definition der ersten und der zweiten Struktur (Quelle und Zeil)
+# Verzeichnis der ersten und zweiten JSON Struktur (Quelle und Ziel)
 QUELLE = "./quellen"
 ZIEL = "./ziele"
-# Definition wo die Bergleiche abgelegt werden
+# Verzeichnis in dem die Vergleiche abgelegt werden
 VERGLEICH = "./vergleiche"
 
 
@@ -251,10 +251,15 @@ def logjsonuntersch(unterschiede, titel):
 
 
 if __name__ == '__main__':
-    # Dateistrukturen vergleichen und auf Namen, Grösse und Datum
+    # JSON Dateistrukturen vergleichen und auf Namen, Grösse und Datum
     # prüfen. Ergebnis in die Ziel-Struktur als eine formatierte
     # Text-Datei schreiben.
-    # Log-Nummer setzen#
+    # Wenn im Quell- und im Zeilverzeichnis JSON mit identisehem
+    # Namen vorhanden sind, werden diese miteinander verglichen und
+    # das Ergebnis in das Vergleich Verzeichnis geschrieben.
+    # Die in der Quelle und im Ziel unterschiedlich vorhandenen JSON
+    # wrden ebenalls im Vergleich Verzeichnis aufgeführt.
+    # Log-Nummer setzen
     log_nr = 0
     # Quellverzeichnis json lesen
     quell_json = []
