@@ -330,7 +330,7 @@ if __name__ == '__main__':
     # Unterschiede in Json in einer Liste anzeigen
     json_log = logjsonuntersch(
         json_unterschiede,
-        "Unterschiedliche Json Verezcihnisse"
+        "Unterschiedliche Json Vezeichnisse"
     )
     json_titel = "Unerschiede von   <{0}>   und   <{1}>".format(
         os.path.abspath(QUELLE),

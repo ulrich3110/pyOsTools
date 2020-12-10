@@ -1,14 +1,14 @@
 # pyOsTools
-Python Tools für die Erfassung und Kontrolle komplexer Dateistrukturen.
+Python Tools für die Erfassung und Kontrolle komplexer Datei-Strukturen.
 
-- listdirs.py: Verzeichnis-Struktur mit Dateien und Untervezeichnissen in eine Textdatei schreiben.
+- listdirs.py: Verzeichnis-Strukturen auflisten
 
-- compdris.py: 2 Verzeichnis-Strukturen vergleichen und die Unerschiede in einer Textdatei schreiben.
+- compdris.py: Verzeichnis-Strukturen vergleichen
 
-- movdirs.py: Dateien in einer Verzeichnis-Struktur anhand von Namen und Erweiterung in ein Ziel Verzeichnis verschieben.
+- movdirs.py: Dateien einer Verzeichnis-Struktur verschieben
 
-- strktlink.py: Unterverzeichnisse eines Verzeichnisses mittels Verknüpfungen hierarchisch darstellen.
+- strktlink.py: Hierarchische Verknüpfungen erstellen
 
-- remodirs.py: Verzeichnis-Struktur mit Dateien und Untervezeichnissen in ein JSON spreichern als Vorberetung zum vergleichen.
+- remodirs.py / compremo.py: Entfernte Verzeichnis-Strukturen vergleichen
 
-- compremo.py: JSON Verzeichnis-Strukturen (erstellt mit remodirs.py) vergleichen und die Unterschiede als Textdatei speichern.
+Ausführlicher Beschrieb unter <https://www.erasand.ch/doku>
