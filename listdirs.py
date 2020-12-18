@@ -30,18 +30,6 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 QUELLE = "."
 
 
-def lenlist(liste):
-    '''
-    Sucht die grösste Anzahl von Zeichen eines Textes in der liste und
-    rückgabe der Länge
-    '''
-    max_anz = 0
-    for i in liste:
-        if len(i) > max_anz:
-            max_anz = len(i)
-    return(max_anz)
-
-
 def savetext(text, pfad):
     '''
     Speichert den Text beim Pfad ab.
@@ -154,76 +142,45 @@ def sortdirs(quell_pfad, verzeichnis_liste, datei_liste,
     return(datei_verzeichnis)
 
 
-def logverzeichnis(datei_verzeichnis, titel):
+def gettree(datei_verzeichnis):
     '''
-    Erstellt anhand des Datei-Verzeichnisses einen Text für die
-    Ausgabe am Bildschirm oder in eine Text-Datei.
-    datei_verzeichnis = {'pfad': ['name',  ],  }
-    titel = "  "
-    text = "  \n  "
+    Erstellt eine Hierarchische Struktur der Verzeichnisse mit Hilfe
+    des Datei-Verzeichnisses
     '''
-    # Titel
-    titel_linie = len(titel) * "-"
-    text = "\n{0}\n{1}\n".format(titel, titel_linie)
-    # Breite Verzeichnis Spalte ermitteln
-    verz_liste = list(datei_verzeichnis.keys())
-    verz_breite = lenlist(verz_liste)
-    # Breite Namen und Datum Spalte ermitteln
-    namen_liste = []
-    datum_liste = []
-    for dateien_pro_verz in datei_verzeichnis.values():
-        for namen, datum, groesse in dateien_pro_verz:
-            namen_liste.append(namen)
-            datum_liste.append(datum)
-    namen_breite = lenlist(namen_liste)
-    datum_breite = lenlist(datum_liste)
-    # Platzhalter für Spalten erzeugen
-    verz_leer = verz_breite * " "
-    namen_leer = namen_breite * " "
-    datum_leer = datum_breite * " "
-    # Verzeichnisse & Dateien
+    verz_liste = []
     for verzeichnis, dateien in datei_verzeichnis.items():
-        # Verzeichnis-Spalte mit fixer Breite
-        verz_text = "{0}{1}".format(verzeichnis, verz_leer)
-        verz_text = verz_text[:verz_breite]
-        # Dateien aufnehmen, die erse Datei steht in der gleichen Zeile
-        # wie das Verzeichnis, die folgenden Dateien weden ohne
-        # Verzeichnis aufgelistet.
-        dateien.sort()
-        # Prüfen ob das Verzeichnis leer ist:
-        if not dateien:
-            # Verzeichnis ist leer, nur den Verzeichnis Namen eintragem
-            text = "{0}{1}\n\n".format(text, verz_text)
+        verz_liste.append(verzeichnis)
+    verz_liste.sort()
+    return(verz_liste)
+
+
+def getfiletree(datei_verzeichnis, verz_liste):
+    '''
+    Erstellt eine Hierarchische Struktur der Verzeichnisse und Dateien
+    mit Hilfe de Datei-Verzeichnisses und einer Liste der Verzeichnisse
+    '''
+    verz_datei_liste = []
+    for verzeichnis in verz_liste:
+        # Verzeichnis als Titel
+        text = "{}".format(verzeichnis)
+        verz_datei_liste.append(text)
+        if not datei_verzeichnis[verzeichnis]:
+            # Keine Dateien
+            verz_datei_liste.append("   (keine Dateien)")
         else:
-            # Verezichnis ist nich leer, alle Dateien abarbeiten
-            for namen, datum, groesse in dateien:
-                # Namenspalte mit fixer Breite
-                namen_text = "{0}{1}".format(namen, namen_leer)
-                namen_text = namen_text[:namen_breite]
-                # Datumspalte mit fixer Breite
-                datum_text = "{0}{1}".format(datum, datum_leer)
-                datum_text = datum_text[:datum_breite]
-                # Grösse mit Tausender Trennung und Rechtsbündig
-                # 000'000'000'000 = 15 Zeichen
-                groesse_text = "{0}{1:,}".format(15 * " ", groesse)
-                groesse_text = groesse_text[-15:]
-                # Zusammenfügen zum Text
-                text = "{0}{1}   {2}   {3} {4} bytes\n".format(
-                    text,
-                    verz_text,
-                    namen_text,
-                    datum_text,
-                    groesse_text
+            for datei in datei_verzeichnis[verzeichnis]:
+                # Dateien auflisten mit Name (Datum, Grösse)
+                name = datei[0]
+                datum = datei[1]
+                grösse = datei[2]
+                text = "   {0} ({1}, {2:,} bytes)".format(
+                    name,
+                    datum,
+                    grösse
                 )
-                # Damit das Verzeichnis nur beim Ersten Eintrag angezeigt
-                # wird, wird nach dem 1. Durchlauf (= 1. Eintrag) der
-                # Verzeichnis Text mit dem Platzhalter der Verzeichnis
-                # Spalte überschrieben.
-                verz_text = verz_leer
-            # Leerzeile am Ende des Verzeichnisses
-            text = "{}\n".format(text)
-    # Text zurückgeben
-    return(text)
+                verz_datei_liste.append(text)
+        verz_datei_liste.append("")
+    return(verz_datei_liste)
 
 
 if __name__ == '__main__':
@@ -248,9 +205,17 @@ if __name__ == '__main__':
     )
     # Log-Meldung
     log_nr = logger(log_nr, "Daten geordnet", datei_verzeichnis)
-    # Inhalt pro Verzeichnis anzeigen
-    titel = "Inhalt von   <{0}>".format(os.path.abspath(QUELLE))
-    log = logverzeichnis(datei_verzeichnis, titel)
+    # Inhalt in einer hierarchischen Struktur erzeugen
+    verz_liste = gettree(datei_verzeichnis)
+    verz_datei_liste = getfiletree(datei_verzeichnis, verz_liste)
+    # Überschriften
+    titel = "Struktur von  <{0}>".format(os.path.abspath(QUELLE))
+    linie = "-" * len(titel)
+    # Texte zusammenführen
+    text = "{0}\n{1}".format(titel, linie)
+    strukt_text = "\n".join(verz_datei_liste)
+    text = "{0}\n{1}".format(text, strukt_text)
+    # In Logdaei speichern
     logname = "Inhalt_{}.txt".format(timetext())
     pfad = os.path.join(QUELLE, logname)
-    savetext(log, pfad)
+    savetext(text, pfad)
