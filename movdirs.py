@@ -56,10 +56,14 @@ def savetext(text, pfad):
         datei_objekt = open(pfad, 'w')
         datei_objekt.write(text)
         datei_objekt.close()
-    except Exception:
-        t = "Es gab einen Fehler beim Spechern.\n"
-        t = "{0}Datei = {1}\nText = {2}\n".format(t, pfad, text)
-        print(t)
+    except Exception as err:
+        # Fehlermeldung erzeugen und als Error Text Datei speichern
+        t = "Es gab einen Fehler in Funktion savetext.\n"
+        t = "{0}Pfad = {1}\nError = {2}\n".format(t, pfad, str(err))
+        err_pfad = "{}___error.txt".format(pfad)
+        err_objekt = open(err_pfad, 'w')
+        err_objekt.write(t)
+        err_objekt.close()
 
 
 def timetext():
@@ -82,7 +86,13 @@ def logger(nummer, text, wert):
     # Nummer hochzählen
     nummer += 1
     # Text mit vorangestellter Hex-Dez Nummber ausgeben
-    print("{0:X} # {1} # {2}".format(nummer, text, str(wert)))
+    wert_text = str(wert)
+    if len(wert_text) > 40:
+        wert_text = "{}..".format(wert_text[:39])
+    print("# {0:X} - {1} - {2} #".format(
+        nummer,
+        text,
+        str(wert_text)))
     # Nummer zurückgeben
     return(nummer)
 

@@ -29,9 +29,9 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 
 
 # Stammpfad von dem alle Quell Verzeichnisse eingelesen werden
-QUELLSTAMM = "/home/andreas/Dropbox/1_Ich/2_Projekte/2020_pyOsTools/2018_Remote_Test/"
+QUELLSTAMM = "/home/andreas/Dropbox/1_Ich/2_Projekte/2018/"
 # Zielverzeichnis wo die JSON pro Verzeichnis gespeichert werden
-JSONPATH = "./ziele/"
+JSONPATH = "./quellen"
 
 
 def logger(nummer, text, wert):
@@ -42,7 +42,13 @@ def logger(nummer, text, wert):
     # Nummer hochzählen
     nummer += 1
     # Text mit vorangestellter Hex-Dez Nummber ausgeben
-    print("{0:X} # {1} # {2}".format(nummer, text, str(wert)))
+    wert_text = str(wert)
+    if len(wert_text) > 40:
+        wert_text = "{}..".format(wert_text[:39])
+    print("# {0:X} - {1} - {2} #".format(
+        nummer,
+        text,
+        str(wert_text)))
     # Nummer zurückgeben
     return(nummer)
 

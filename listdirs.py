@@ -40,10 +40,14 @@ def savetext(text, pfad):
         datei_objekt = open(pfad, 'w')
         datei_objekt.write(text)
         datei_objekt.close()
-    except Exception:
-        t = "Es gab einen Fehler beim Spechern.\n"
-        t = "{0}Datei = {1}\nText = {2}\n".format(t, pfad, text)
-        print(t)
+    except Exception as err:
+        # Fehlermeldung erzeugen und als Error Text Datei speichern
+        t = "Es gab einen Fehler in Funktion savetext.\n"
+        t = "{0}Pfad = {1}\nError = {2}\n".format(t, pfad, str(err))
+        err_pfad = "{}___error.txt".format(pfad)
+        err_objekt = open(err_pfad, 'w')
+        err_objekt.write(t)
+        err_objekt.close()
 
 
 def timetext():
@@ -66,7 +70,13 @@ def logger(nummer, text, wert):
     # Nummer hochzählen
     nummer += 1
     # Text mit vorangestellter Hex-Dez Nummber ausgeben
-    print("{0:X} # {1} # {2}".format(nummer, text, str(wert)))
+    wert_text = str(wert)
+    if len(wert_text) > 40:
+        wert_text = "{}..".format(wert_text[:39])
+    print("# {0:X} - {1} - {2} #".format(
+        nummer,
+        text,
+        str(wert_text)))
     # Nummer zurückgeben
     return(nummer)
 
@@ -144,8 +154,10 @@ def sortdirs(quell_pfad, verzeichnis_liste, datei_liste,
 
 def gettree(datei_verzeichnis):
     '''
-    Erstellt eine Hierarchische Struktur der Verzeichnisse mit Hilfe
-    des Datei-Verzeichnisses
+    Erstellt eine Hierarchische Verzeichnis-Liste der Verzeichnisse
+    mit Hilfe des Datei-Verzeichnisses
+    datei_verzeichnis = {'pfad': [('name', 'datum', groesse)  ],  }
+    verz_liste = ['pfad',  ]
     '''
     verz_liste = []
     for verzeichnis, dateien in datei_verzeichnis.items():
@@ -156,8 +168,11 @@ def gettree(datei_verzeichnis):
 
 def getfiletree(datei_verzeichnis, verz_liste):
     '''
-    Erstellt eine Hierarchische Struktur der Verzeichnisse und Dateien
+    Erstellt eine Hierarchische Text-Liste der Verzeichnisse und Dateien
     mit Hilfe de Datei-Verzeichnisses und einer Liste der Verzeichnisse
+    datei_verzeichnis = {'pfad': [('name', 'datum', groesse)  ],  }
+    verz_liste = ['pfad',  ]
+    verz_datei_list = ["Pfad", "Dateiname (Datum, Grösse)", "", ]
     '''
     verz_datei_liste = []
     for verzeichnis in verz_liste:
@@ -173,7 +188,7 @@ def getfiletree(datei_verzeichnis, verz_liste):
                 name = datei[0]
                 datum = datei[1]
                 grösse = datei[2]
-                text = "   {0} ({1}, {2:,} bytes)".format(
+                text = "\t{0} ({1}, {2:,} bytes)".format(
                     name,
                     datum,
                     grösse
@@ -212,10 +227,10 @@ if __name__ == '__main__':
     titel = "Struktur von  <{0}>".format(os.path.abspath(QUELLE))
     linie = "-" * len(titel)
     # Texte zusammenführen
-    text = "{0}\n{1}".format(titel, linie)
+    log = "{0}\n{1}".format(titel, linie)
     strukt_text = "\n".join(verz_datei_liste)
-    text = "{0}\n{1}".format(text, strukt_text)
-    # In Logdaei speichern
+    log = "{0}\n{1}".format(log, strukt_text)
+    # In Logdatei speichern
     logname = "Inhalt_{}.txt".format(timetext())
     pfad = os.path.join(QUELLE, logname)
-    savetext(text, pfad)
+    savetext(log, pfad)
