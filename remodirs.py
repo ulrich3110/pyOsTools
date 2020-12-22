@@ -6,7 +6,7 @@ import os
 import json
 
 '''
-remodirs.py - Verzeichnis-Strukturen als JSOn abspeichern
+remodirs.py - Verzeichnis-Strukturen als Json abspeichern
 Copyright (c) Nov. 2020: Andreas Ulrich
 <http://erasand.ch>, <andreas@erasand.ch>
 
@@ -29,9 +29,9 @@ DEUTSCHE ÜBERSETZUNG: <http://www.gnu.de/documents/gpl-3.0.de.html>
 
 
 # Stammpfad von dem alle Quell Verzeichnisse eingelesen werden
-QUELLSTAMM = "/home/andreas/Dropbox/1_Ich/2_Projekte/2018/"
+QUELLSTAMM = "/home/andreas/Dropbox/1_Ich/2_Projekte/2020_pyOsTools/2018_Remote_Test/"
 # Zielverzeichnis wo die JSON pro Verzeichnis gespeichert werden
-JSONPATH = "./quellen"
+JSONPATH = "./ziele"
 
 
 def logger(nummer, text, wert):
@@ -132,6 +132,7 @@ if __name__ == '__main__':
         # Verzeichnis für den JSON Export erzeugen
         # {'Datei-Liste': [  ], 'Info-Verz': {  }}
         json_verz = {
+            'Stamm': quell_pfad,
             'Datei-Liste': quell_dateien,
             'Info-Verz': quell_info_verz
         }
