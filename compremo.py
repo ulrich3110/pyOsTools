@@ -37,6 +37,9 @@ VERGLEICH = "./vergleiche"
 AUSNAHMEN = ["Thumbs.db", ".DS_Store"]
 # Ausnahme mit Dateinamen Anfang a, welche ebenfalls ignoriert wird
 AUSN_STARTa = "~$"
+AUSN_ENDa = ".tmp"
+# Vergleichsart: Detail, Resume
+ART = "Resume"
 
 
 def savetext(text, pfad):
@@ -46,7 +49,12 @@ def savetext(text, pfad):
     pfad = '/pfad'
     '''
     try:
-        datei_objekt = open(pfad, 'w')
+        datei_objekt = open(
+            pfad,
+            'w',
+            encoding='utf-8',
+            errors='ignore'
+        )
         datei_objekt.write(text)
         datei_objekt.close()
     except Exception as err:
@@ -124,7 +132,10 @@ def remocomparedirs(quell_stamm, quell_liste, quell_info_verz,
             # Ausnahme, nichts machen
             pass
         elif quell_name.startswith(AUSN_STARTa):
-            # Ausnahme mit a, nichts machen
+            # Ausnahme Anfang mit a, nichts machen
+            pass
+        elif quell_name.endswith(AUSN_ENDa):
+            # Ausnahme Ende mit a, nichts machen
             pass
         else:
             # Keine Ausnahme
@@ -155,8 +166,8 @@ def remocomparedirs(quell_stamm, quell_liste, quell_info_verz,
             # Ziel Informationen lesen
             if ziel_schluessel:
                 # Bei Übereinstimmung
-                ziel_name = os.path.basename(ziel_schluessel)
                 ziel_pfad = os.path.dirname(ziel_schluessel)
+                ziel_name = os.path.basename(ziel_schluessel)
                 if ziel_schluessel in ziel_info_verz.keys():
                     # Die Datei ist in den Informationen vorhanden
                     # Informationen von Quelle und Ziel lesen
@@ -166,12 +177,13 @@ def remocomparedirs(quell_stamm, quell_liste, quell_info_verz,
                     ziel_datum = ""
                     ziel_groesse = 0
             else:
-                ziel_name = "nicht vorhanden"
                 ziel_pfad = "nicht vorhanden"
+                ziel_name = "nicht vorhanden"
                 ziel_datum = ""
                 ziel_groesse = 0
             # Vergleich
-            if quell_datum != ziel_datum:
+            if (quell_datum != ziel_datum or
+                quell_groesse != ziel_groesse):
                 # Anderes Datum
                 unterschiede.append((
                     quell_pfad,
@@ -204,6 +216,9 @@ def remocomparedirs(quell_stamm, quell_liste, quell_info_verz,
             pass
         elif ziel_name.startswith(AUSN_STARTa):
             # Ausnahme mit a, nichts machen
+            pass
+        elif quell_name.endswith(AUSN_ENDa):
+            # Ausnahme Ende mit a, nichts machen
             pass
         else:
             # Keine Ausnahme
@@ -311,6 +326,141 @@ def getcomparetree(unterschiede):
         # Leerzeile einfügen
         unterschied_liste.append("")
     return(unterschied_liste)
+
+
+def getcomresume(unterschiede, quell_stamm, ziel_stamm):
+    '''
+    Erstellt eine Zusammenfassung der Unterschiede mit Hilfe der
+    Liste der Unterschiede, des Quell- und Ziel-Stammes
+    unterschiede = [
+        (
+            'quellpfad',
+            'quellname',
+            'quelldatum',
+            quellgrösse,
+            'zielpfad'
+            'zielname',
+            'zieldatum',
+            zielgrösse
+        ),
+    ]
+    quell_stamm = ""
+    ziel_stamm = ""
+    nicht_verz = {"Quell-Verzeichnis": ["Dateien", ], }
+    zuviel_verz = {"Ziel-Verzeichnis": ["Dateien", ], }
+    info_verz = {"reduziertes Verzeichnis":
+                  [("Datei", "Quell-Datum", "Ziel-Datum",
+                    Quell-Grösse, Ziel-Grösse), ], }
+    fehler_liste = [(quell-pfad, quell-name, ziel-pfad, ziel-name), ]
+    '''
+    # Verzeichnisse definieren
+    nicht_verz = {}
+    zuviel_verz = {}
+    info_verz = {}
+    fehler_liste = []
+    # Unterschiede abarbeiten
+    for u in unterschiede:
+        # Werte auslesen
+        quell_pfad = u[0]
+        quell_name = u[1]
+        quell_datum = u[2]
+        quell_groesse = u[3]
+        ziel_pfad = u[4]
+        ziel_name = u[5]
+        ziel_datum = u[6]
+        ziel_groesse = u[7]
+        # Im Ziel-Verzeichnis nicht vorhanden
+        if ziel_name == "nicht vorhanden":
+            if quell_pfad in nicht_verz.keys():
+                # Quell-Pfad bereits vorhanden
+                nicht_verz[quell_pfad].append(quell_name)
+            else:
+                # Quell-Pfad nocht nicht vorhanden
+                nicht_verz[quell_pfad] = [quell_name]
+        # Im Quell-Verzeichnis nicht vorhanden
+        if quell_name == "nicht vorhanden":
+            if ziel_pfad in nicht_verz.keys():
+                # Quell-Pfad bereits vorhanden
+                zuviel_verz[ziel_pfad].append(ziel_name)
+            else:
+                # Quell-Pfad nocht nicht vorhanden
+                zuviel_verz[ziel_pfad] = [ziel_name]
+        # Unterschiedlichde Datei-Informationen
+        if (quell_name != "nicht vorhanden" and
+            ziel_name != "nicht vorhanden"):
+            # Von den Quell- und Zielpfaden die Stammpfade wegnehmen
+            red_ziel_pfad = ziel_pfad.replace(ziel_stamm, "")
+            red_quell_pfad = quell_pfad.replace(quell_stamm, "")
+            if (red_ziel_pfad == red_quell_pfad and
+                ziel_name == quell_name):
+                # Bei Übereinstimmung von Pfaden und Namen die Infos
+                # aufnehmen
+                if red_ziel_pfad in info_verz.keys():
+                    # Reduzierter Ziel-Pfad bereits vorhanden
+                    info_verz[red_ziel_pfad].append((
+                        ziel_name,
+                        quell_datum,
+                        ziel_datum,
+                        quell_groesse,
+                        ziel_groesse
+                    ))
+                else:
+                    # Quell-Pfad nocht nicht vorhanden
+                    info_verz[red_ziel_pfad] = [(
+                        ziel_name,
+                        quell_datum,
+                        ziel_datum,
+                        quell_groesse,
+                        ziel_groesse
+                    )]
+            else:
+                # Keine Übereinstimmung von Pfaden oder Namen
+                # In Fehler Liste aufnehmen
+                fehler_liste.append(
+                    quell_pfad,
+                    quell_name,
+                    ziel_pfad,
+                    ziel_name
+                )
+    # Zusammenfassung in eine Text-Datei ausgeben
+    text = "QUELLE: {0}\n".format(quell_stamm)
+    text = "{0}ZIEL : {1}\n".format(text, ziel_stamm)
+    # Nicht vorhandene Dateien ausgeben
+    text = "{0}\nNICHT VORHANDENE DATEIEN IM ZIEL\n".format(text)
+    for pfad, dateien in nicht_verz.items():
+        # Überprüfen ob Unterschiede vorhanden sind
+        if pfad != "" and dateien != []:
+            # Pfad
+            text = "{0}{1}\n".format(text, pfad)
+            # Dateien
+            for d in dateien:
+                text = "{0}  -{1}\n".format(text, d)
+    # Zuviel vorhandene Dateien ausgeben
+    text = "{0}\nZUVIEL VORHANDENE DATEIEN IM ZIEL\n".format(text)
+    for pfad, dateien in zuviel_verz.items():
+        # Pfad
+        text = "{0}{1}\n".format(text, pfad)
+        # Dateien
+        for d in dateien:
+            text = "{0}  -{1}\n".format(text, d)
+    # Unterschiedliche Datei-Informationen
+    text = "{0}\nUNTERSCHIEDLICHE INFORMATIONEN\n".format(text)
+    for pfad, dateien in zuviel_verz.items():
+        # Pfad
+        text = "{0}..{1}\n".format(text, pfad)
+        text = "{0}   name / quell-datum / ziel-datum / ".format(text)
+        text = "{0}quell-grösse / ziel-grösse".format(text)
+        # Dateien & Informationen
+        for d in dateien:
+            text = "{0}  -{1} / {2} / {3} / ".format(
+                text,
+                d[0],
+                d[1],
+                d[2]
+            )
+            text = "{0}}{1} / {2}\n".format(text, d[3], d[4])
+    # Text zurückgeben
+    return(text)
 
 
 def comparejson(quell_liste, ziel_liste):
@@ -445,20 +595,31 @@ if __name__ == '__main__':
         )
         # Log-Meldung
         log_nr = logger(log_nr, "Unterschiede ermittelt", unterschiede)
-        # Unterschiede als Text-Datei speichern im Ziel
-        titel = "Unerschiede von\n<{0}>  und\n<{1}>\n\n".format(
-            os.path.abspath(quell_pfad),
-            os.path.abspath(ziel_pfad)
-        )
-        if not unterschiede:
-            strukt_text = "Keine"
-        else:
-            unerschied_list = getcomparetree(unterschiede)
-            strukt_text = "\n".join(unerschied_list)
-        log = "{0}{1}".format(titel, strukt_text)
-        logname = "Vergleich_{0}_{1}.txt".format(i, timetext())
-        pfad = os.path.join(VERGLEICH, logname)
-        savetext(log, pfad)
+        if ART == "Detail":
+            # Detaillierte Unterschiede als Text-Datei speichern
+            titel = "Unerschiede von\n<{0}>  und\n<{1}>\n\n".format(
+                os.path.abspath(quell_pfad),
+                os.path.abspath(ziel_pfad)
+            )
+            if not unterschiede:
+                strukt_text = "Keine"
+            else:
+                unerschied_list = getcomparetree(unterschiede)
+                strukt_text = "\n".join(unerschied_list)
+            log = "{0}{1}".format(titel, strukt_text)
+            logname = "Vergleich_{0}_{1}.txt".format(i, timetext())
+            pfad = os.path.join(VERGLEICH, logname)
+            savetext(log, pfad)
+        elif ART == "Resume":
+            # Zusammenfassung der Unerschiede als Text-Datei speichern
+            text = getcomresume(
+                unterschiede,
+                quell_json_verz['Stamm'],
+                ziel_json_verz['Stamm']
+            )
+            logname = "Resume_{0}_{1}.txt".format(i, timetext())
+            pfad = os.path.join(VERGLEICH, logname)
+            savetext(text, pfad)
     # Unterschiede in Json in einer Liste anzeigen
     json_log = logjsonuntersch(json_gleich, json_unterschiede)
     json_titel = "Unerschiede von   <{0}>   und   <{1}>".format(

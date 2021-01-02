@@ -11,4 +11,6 @@ Python Tools für die Erfassung und Kontrolle komplexer Datei-Strukturen.
 
 - remodirs.py / compremo.py: Entfernte Verzeichnis-Strukturen vergleichen
 
+- pyren.py: Dateien im aktuellen Verzeichnis umbenennen
+
 Ausführlicher Beschrieb unter <https://www.erasand.ch/doku>
