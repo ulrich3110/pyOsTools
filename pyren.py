@@ -33,11 +33,11 @@ if __name__ == '__main__':
     for e in datei_liste:
         # Jedes Element abarbeiten
         new_e = ""
-        if e.endswith(" (B).json"):
+        if e.endswith(" Ende Test"):
             # " (B)" entfernen
-            new_e = e.replace(" (B)", "")
-        elif e.endswith(" (BS).json")
-            new_e = e.replace(" (BS", "")
+            new_e = e.replace(" Ende Test", "_OK")
+        elif e.startswith("Anfang Test ")
+            new_e = e.replace("Anfang Test ", "OK_")
         if new_e:
             # Falls für new_e eine Zeichenfolge definiert wurde,
             # das Element umbenennen
