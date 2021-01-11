@@ -445,11 +445,11 @@ def getcomresume(unterschiede, quell_stamm, ziel_stamm):
             text = "{0}  -{1}\n".format(text, d)
     # Unterschiedliche Datei-Informationen
     text = "{0}\nUNTERSCHIEDLICHE INFORMATIONEN\n".format(text)
-    for pfad, dateien in zuviel_verz.items():
+    for pfad, dateien in info_verz.items():
         # Pfad
         text = "{0}..{1}\n".format(text, pfad)
         text = "{0}   name / quell-datum / ziel-datum / ".format(text)
-        text = "{0}quell-grösse / ziel-grösse".format(text)
+        text = "{0}quell-grösse / ziel-grösse\n".format(text)
         # Dateien & Informationen
         for d in dateien:
             text = "{0}  -{1} / {2} / {3} / ".format(
@@ -458,7 +458,17 @@ def getcomresume(unterschiede, quell_stamm, ziel_stamm):
                 d[1],
                 d[2]
             )
-            text = "{0}}{1} / {2}\n".format(text, d[3], d[4])
+            text = "{0}{1}bytes / {2}bytes\n".format(text, d[3], d[4])
+    # Fehlerhafte Informationen
+    text = "{0}\nFEHLER BEIM VERGLEICH\n".format(text)
+    for f in fehler_liste:
+        text = "{0}  -{1}: {2}  /  {3}: {4}".format(
+                text,
+                f[0],
+                f[1],
+                f[2],
+                f[3]
+            )
     # Text zurückgeben
     return(text)
 
