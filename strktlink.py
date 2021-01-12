@@ -172,7 +172,12 @@ def makelink(quell_pfad, ziel_pfad):
         # Batch Datei speichern
         datei_name = "{}.bat".format(ziel_pfad)
         try:
-            fileObj = open(datei_name, 'w')
+            fileObj = open(
+                datei_name,
+                'w',
+                encoding='utf-8',
+                errors='ignore'
+            )
             fileObj.write(text)
             fileObj.close()
         except Exception:

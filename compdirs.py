@@ -32,8 +32,10 @@ QUELLE = "2018_Remote_Test"
 ZIEL = "2018_transfer_test"
 # Ausnahmeliste mit Dateinamen, welche ignoriert werden
 AUSNAHMEN = ["Thumbs.db", ".DS_Store"]
-# Ausnahme mit Dateinamen Anfang a, welche ebenfalls ignoriert wird
+# Ausnahme mit Dateinamen Anfängen, welche ignoriert werden
 AUSN_STARTa = "~$"
+# Ausnahmen mit Dateinamen Enden, welche ignoriert werden
+AUSN_ENDa = ".tmp"
 # Vergleichsart: Detail, Resume
 ART = "Resume"
 
@@ -45,7 +47,12 @@ def savetext(text, pfad):
     pfad = '/pfad'
     '''
     try:
-        datei_objekt = open(pfad, 'w')
+        datei_objekt = open(
+            pfad,
+            'w',
+            encoding='utf-8',
+            errors='ignore'
+        )
         datei_objekt.write(text)
         datei_objekt.close()
     except Exception as err:
@@ -165,7 +172,10 @@ def comparedirs(quell_stamm, quell_liste, quell_info_verz,
             # Ausnahme, nichts machen
             pass
         elif quell_name.startswith(AUSN_STARTa):
-            # Ausnahme mit a, nichts machen
+            # Ausnahme Anfang mit a, nichts machen
+            pass
+        elif quell_name.endswith(AUSN_ENDa):
+            # Ausnahme Ende mit a, nichts machen
             pass
         else:
             # Keine Ausnahme
@@ -244,7 +254,10 @@ def comparedirs(quell_stamm, quell_liste, quell_info_verz,
             # Ausnahme, nichts machen
             pass
         elif ziel_name.startswith(AUSN_STARTa):
-            # Ausnahme mit a, nichts machen
+            # Ausnahme Anfang mit a, nichts machen
+            pass
+        elif quell_name.endswith(AUSN_ENDa):
+            # Ausnahme Ende mit a, nichts machen
             pass
         else:
             # Keine Ausnahme
@@ -413,12 +426,12 @@ def getcomresume(unterschiede, quell_stamm, ziel_stamm):
                 zuviel_verz[ziel_pfad] = [ziel_name]
         # Unterschiedlichde Datei-Informationen
         if (quell_name != "nicht vorhanden" and
-            ziel_name != "nicht vorhanden"):
+           ziel_name != "nicht vorhanden"):
             # Von den Quell- und Zielpfaden die Stammpfade wegnehmen
             red_ziel_pfad = ziel_pfad.replace(ziel_stamm, "")
             red_quell_pfad = quell_pfad.replace(quell_stamm, "")
             if (red_ziel_pfad == red_quell_pfad and
-                ziel_name == quell_name):
+               ziel_name == quell_name):
                 # Bei Übereinstimmung von Pfaden und Namen die Infos
                 # aufnehmen
                 if red_ziel_pfad in info_verz.keys():

@@ -53,7 +53,12 @@ def savetext(text, pfad):
     pfad = '/pfad'
     '''
     try:
-        datei_objekt = open(pfad, 'w')
+        datei_objekt = open(
+            pfad,
+            'w',
+            encoding='utf-8',
+            errors='ignore'
+        )
         datei_objekt.write(text)
         datei_objekt.close()
     except Exception as err:
