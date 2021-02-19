@@ -218,7 +218,7 @@ def remocomparedirs(quell_stamm, quell_liste, quell_info_verz,
         elif ziel_name.startswith(AUSN_STARTa):
             # Ausnahme Anfang mit a, nichts machen
             pass
-        elif quell_name.endswith(AUSN_ENDa):
+        elif ziel_name.endswith(AUSN_ENDa):
             # Ausnahme Ende mit a, nichts machen
             pass
         else:

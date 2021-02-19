@@ -13,4 +13,4 @@ Python Tools für die Erfassung und Kontrolle komplexer Datei-Strukturen.
 
 - pyren.py: Dateien im aktuellen Verzeichnis umbenennen
 
-Ausführlicher Beschrieb unter <https://www.erasand.ch/doku>
+Ausführlicher Beschrieb unter <https://www.erasand.ch/doku#pyostools>
